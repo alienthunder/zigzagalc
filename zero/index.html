@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subject Zero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a late-night mystery in a shut-down psychology lab; tense but warm, never schoolish
+   IDEA: a stack of case files in Room 47 - every lesson is a file you crack open
+   PICTURE: the door to Room 47 with light under it; in labs, the giant word itself is the picture
+   COLOUR and TYPE: deep lab-teal ground, paper file cards, red-pen coral accent, sea-glass support; Archivo titles, Atkinson Hyperlegible (built for legibility) for all reading
+   LAYOUT: one column up to 860px; big word stage on top, controls under it, stacks cleanly on a phone */
+:root{color-scheme:dark;--bg:#0f1f1e;--panel:#172b2a;--panel2:#1d3634;--line:#2c4846;--ink:#eef2ee;--mute:#a7bab5;--paper:#e9e6dc;--pink:#1b2422;--coral:#ff6b57;--sea:#7fd1c1;--good:#7fd1a0;--rs:1}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 "Atkinson Hyperlegible",Verdana,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:Archivo,"Arial Narrow",sans-serif;font-weight:800;line-height:1.08;margin:0;text-wrap:balance}
+h1{font-size:clamp(36px,6vw,56px)}h2{font-size:clamp(26px,4vw,36px)}h3{font-size:20px}
+button{font:inherit;color:inherit}
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:10px max(4vw,14px);background:rgba(15,31,30,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.brand{white-space:nowrap;background:none;border:0;font:800 19px Archivo,sans-serif;cursor:pointer;padding:8px 0;min-height:44px}
+.stat{margin-left:auto;font-size:15px;color:var(--mute);text-align:right;line-height:1.2}
+.stat b{color:var(--ink);font-size:17px}
+.wrap{max-width:860px;margin:0 auto;padding:clamp(18px,4vw,40px) max(4vw,16px) 80px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:10px 18px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-weight:700;text-decoration:none;color:var(--ink)}
+.btn:hover{border-color:var(--sea)}
+.btn:focus-visible,.tile:focus-visible,.L:focus-visible,.w:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--sea);outline-offset:2px}
+.btn.pri{background:var(--coral);border-color:var(--coral);color:#1d0d09}
+.btn.ghost{background:none}
+.btn[disabled]{opacity:.45;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.mute{color:var(--mute)}
+.small{font-size:15px}
+.ico{width:20px;height:20px;flex:none}
+/* hero */
+.hero{position:relative;height:clamp(260px,42vw,400px);overflow:hidden;border-bottom:1px solid var(--line)}
+.hero svg{position:absolute;inset:0;width:100%;height:100%}
+.hero .cap{position:absolute;left:max(4vw,16px);bottom:clamp(18px,4vw,40px);max-width:min(460px,70%)}
+.hero p{margin:10px 0 16px;color:#d6e2de}
+/* files */
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:18px;margin-top:22px}
+.file{position:relative;text-align:left;background:var(--paper);color:var(--pink);border:0;border-radius:4px 12px 12px 12px;padding:22px 18px 18px;cursor:pointer;min-height:150px;box-shadow:0 10px 0 -4px #0a1514}
+.file::before{content:"";position:absolute;top:-12px;left:0;width:96px;height:14px;background:var(--paper);border-radius:8px 8px 0 0}
+.file .no{font-size:15px;color:#55615e}
+.file h3{margin:4px 0 8px;font-size:23px}
+.file .bar{height:8px;background:#cfcabd;border-radius:6px;overflow:hidden;margin-top:12px}
+.file .bar i{display:block;height:100%;background:var(--coral)}
+.file.locked{background:#3a4d4b;color:#9fb0ac;cursor:default}
+.file.locked::before{background:#3a4d4b}
+.stamp{position:absolute;right:14px;top:14px;border:2px solid var(--coral);color:var(--coral);font:800 14px Archivo,sans-serif;padding:2px 8px;border-radius:6px;transform:rotate(-6deg)}
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px;margin-top:30px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+.card h3{margin-bottom:6px}
+/* case */
+.steps{display:grid;gap:10px;margin:20px 0}
+.step{display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;cursor:pointer;min-height:64px}
+.step:hover{border-color:var(--sea)}
+.step .n{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--panel2);font-weight:700}
+.step.done .n{background:var(--good);color:#0d2416}
+.step b{display:block;font-size:19px}
+.note{background:var(--paper);color:var(--pink);border-radius:12px;padding:16px 18px;margin:18px 0}
+.note b{color:#b3261e}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:8px 14px;border-radius:22px;background:var(--panel2);border:1px solid var(--line);cursor:pointer}
+.chip.m{border-color:var(--good)}
+/* stage */
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,4vw,34px);margin-top:16px}
+.prog{display:flex;justify-content:space-between;gap:10px;color:var(--mute);font-size:15px;margin-bottom:12px}
+.big{font-size:calc(clamp(34px,8vw,64px)*var(--rs));font-weight:700;letter-spacing:.04em;text-align:center;line-height:1.15;margin:18px 0;overflow-wrap:anywhere}
+.syl{display:inline-block;padding:0 .04em;border-radius:8px;transition:background .15s}
+.colors .syl:nth-child(even){color:var(--sea)}
+.dot{color:var(--mute);font-weight:400;padding:0 .06em}
+.syl.on{background:var(--coral);color:#1d0d09!important}
+.def{text-align:center;font-size:calc(19px*var(--rs));color:#d6e2de;max-width:560px;margin:0 auto}
+.fb{min-height:28px;text-align:center;font-weight:700;margin:12px 0}
+.fb.ok{color:var(--good)}.fb.no{color:var(--coral)}
+.center{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:14px}
+/* bet */
+.bet{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin-bottom:6px}
+.bet button{min-height:44px;padding:6px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;line-height:1.15;font-size:15px}
+.bet button span{display:block;font-size:13px;color:var(--mute)}
+.bet button.sel{border-color:var(--coral);background:#3a2420}
+.bet[aria-disabled=true] button{opacity:.6;cursor:default}
+/* slicer */
+.slicer{display:flex;justify-content:center;margin:26px auto 8px;max-width:760px}
+.L{flex:0 1 56px;min-height:72px;font-size:calc(clamp(24px,calc(88vw / var(--n)),56px)*var(--rs));font-weight:700;background:none;border:0;border-right:3px solid transparent;cursor:pointer;padding:0;border-radius:6px}
+.L:hover{background:var(--panel2)}
+.L.cut{border-right-color:var(--coral)}
+.L.c1{color:var(--sea)}
+/* options */
+.opts{display:grid;gap:10px;margin-top:10px}
+.opt{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--panel2);border:2px solid var(--line);border-radius:14px;padding:8px 10px}
+.opt.right{border-color:var(--good)}.opt.wrong{border-color:var(--coral)}
+.opt .lbl{font-weight:700;font-size:18px}
+.opt .reveal{color:var(--mute);font-size:15px}
+/* forge */
+.slot{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;min-height:84px;padding:12px;border:2px dashed var(--line);border-radius:14px;margin:16px 0}
+.pool{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.tile{min-width:84px;min-height:64px;padding:8px 14px;border-radius:12px;background:var(--paper);color:var(--pink);border:0;cursor:pointer;line-height:1.15;box-shadow:0 4px 0 #9a958a}
+.tile b{display:block;font-size:calc(24px*var(--rs))}
+.tile span{font-size:13px;color:#4e5a57}
+.tile.used{opacity:.25;pointer-events:none}
+.tile.ok{background:var(--good)}.tile.bad{background:#ffb3a8}
+/* spell */
+.blanks{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:18px 0}
+.blank{min-width:70px;min-height:58px;display:grid;place-items:center;border-bottom:3px solid var(--mute);font-size:calc(30px*var(--rs));font-weight:700;padding:0 6px}
+.blank.cur{border-bottom-color:var(--coral)}
+.blank.ok{color:var(--good);border-bottom-color:var(--good)}.blank.bad{color:var(--coral);border-bottom-color:var(--coral)}
+.choices{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.choices .tile b{font-size:calc(28px*var(--rs))}
+input.type,textarea{width:100%;font:inherit;font-size:calc(22px*var(--rs));background:#0c1918;color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:12px 14px}
+input.type{text-align:center;letter-spacing:.06em;font-size:calc(30px*var(--rs));max-width:520px;display:block;margin:10px auto}
+textarea{min-height:220px;font-size:calc(19px*var(--rs));line-height:1.7}
+.miss{color:var(--coral);text-decoration:underline 3px}
+/* reader */
+.story{font-size:calc(21px*var(--rs));line-height:1.85;max-width:680px;margin:0 auto}
+.w{cursor:pointer;border-radius:5px;padding:0 1px}
+.w:hover{background:var(--panel2)}
+.w.tw{border-bottom:3px solid var(--coral)}
+.sent.on{background:rgba(127,209,193,.12);border-radius:6px}
+.w.on{background:var(--sea);color:#0d2422}
+.controls{position:sticky;bottom:0;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:14px;margin:18px -4px -4px;background:linear-gradient(transparent,var(--panel) 30%)}
+/* sheet */
+.back{position:fixed;inset:0;background:rgba(3,10,10,.6);z-index:40;display:none}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--panel);border-top:2px solid var(--coral);border-radius:18px 18px 0 0;padding:20px max(4vw,16px) 26px;max-height:85vh;overflow:auto;transform:translateY(105%);visibility:hidden;transition:transform .22s ease,visibility .22s}
+.sheet.open{transform:none;visibility:visible}
+.sheet .inner{max-width:720px;margin:0 auto}
+label.f{display:block;margin:14px 0 6px;font-weight:700}
+select,input[type=range]{width:100%;min-height:44px;font:inherit;background:#0c1918;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:6px 10px}
+.toast{position:fixed;left:50%;top:76px;transform:translate(-50%,-20px);opacity:0;z-index:50;background:var(--paper);color:var(--pink);font-weight:700;padding:10px 18px;border-radius:12px;transition:.25s;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+td,th{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left}
+td.r,th.r{text-align:right;white-space:nowrap}
+.issues{margin:12px 0;padding:0;list-style:none;display:grid;gap:8px}
+.issues li{background:var(--panel2);border-left:4px solid var(--coral);padding:10px 12px;border-radius:8px}
+.issues li.okay{border-left-color:var(--good)}
+.readback{margin-top:16px;padding:16px;border-radius:12px;background:#0c1918;font-size:calc(19px*var(--rs));line-height:1.8;display:none}
+.foot{color:var(--mute);font-size:14px;margin-top:40px}
+@media (max-width:600px){.stat{font-size:13px}.stat b{font-size:15px}.hero .cap{max-width:92%}.step{grid-template-columns:40px 1fr}.step .go{display:none}.opt{grid-template-columns:auto 1fr}.opt .pick{grid-column:1/-1}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="brand" id="homeBtn">Subject Zero</button>
+  <div class="stat" id="stat"></div>
+  <button class="btn ghost" id="setBtn" aria-label="Reading settings">Settings</button>
+</header>
+<main id="main"></main>
+<div class="back" id="back"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"><div class="inner" id="sheetIn"></div></div>
+<div class="toast" id="toast" aria-live="polite"></div>
+<script>
+{
+/* ---------- data ---------- */
+// word: [syllables, sound-it-out respelling, meaning, look-alike decoys]
+const W={
+institute:['in·sti·tute','in·stih·toot','a place set up for research or teaching',['institution','constitute']],
+research:['re·search','ree·surch','careful study to find out new facts',['rehearse','resource']],
+psychology:['psy·chol·o·gy','sigh·call·uh·jee','the science of the mind and behavior',['physiology','psychiatry']],
+experiment:['ex·per·i·ment','ex·pair·ih·ment','a test set up to find out if an idea is true',['experience','expert']],
+subject:['sub·ject','sub·jekt','a person being studied in an experiment',['suspect','subtract']],
+observation:['ob·ser·va·tion','ob·sur·vay·shun','watching closely and writing down what you see',['conservation','obsession']],
+behavior:['be·hav·ior','bee·hay·vyer','the way a person or animal acts',['behalf','believer']],
+hypothesis:['hy·poth·e·sis','high·poth·uh·sis','a testable guess about what will happen',['hypnosis','hypocrisy']],
+participant:['par·tic·i·pant','par·tiss·ih·punt','a person who takes part in a study',['participle','particular']],
+perception:['per·cep·tion','pur·sep·shun','how your senses and brain take in the world',['reception','precision']],
+conscious:['con·scious','kon·shuss','awake to something and aware of it',['conscience','cautious']],
+environment:['en·vi·ron·ment','en·vye·run·ment','the surroundings a person is in',['endowment','enlistment']],
+situation:['sit·u·a·tion','sitch·oo·ay·shun','what is happening at a certain time and place',['saturation','station']],
+reaction:['re·ac·tion','ree·ack·shun','what you do in response to something',['relation','redaction']],
+uncomfortable:['un·com·fort·a·ble','un·kum·fur·tuh·bull','not at ease',['uncontrollable','unforgettable']],
+conformity:['con·form·i·ty','kun·form·ih·tee','going along with what the group does',['uniformity','enormity']],
+dilemma:['di·lem·ma','dih·lem·uh','a hard choice between two bad options',['diploma','dilate']],
+cooperate:['co·op·er·ate','koh·op·ur·ate','to work together',['corporate','operate']],
+strategy:['strat·e·gy','strat·uh·jee','a plan for how to win or reach a goal',['tragedy','strategic']],
+betray:['be·tray','bee·tray',"to break someone's trust",['portray','bray']],
+prediction:['pre·dic·tion','pree·dick·shun','saying what you think will happen',['predilection','production']],
+rational:['ra·tion·al','rash·un·ul','based on logic and reason',['national','ration']],
+consequence:['con·se·quence','kon·suh·kwence','a result that follows an action',['sequence','convenience']],
+motivation:['mo·ti·va·tion','moh·tih·vay·shun','the reason someone does something',['medication','moderation']],
+memory:['mem·o·ry','mem·uh·ree',"the mind's ability to store and bring back the past",['memorial','memo']],
+cognitive:['cog·ni·tive','kog·nih·tiv','having to do with thinking, knowing and remembering',['connective','cognate']],
+evidence:['ev·i·dence','ev·ih·dense','facts that show whether something is true',['evident','residence']],
+analysis:['a·nal·y·sis','uh·nal·uh·sis','breaking something down to study its parts',['analyst','paralysis']],
+variable:['var·i·a·ble','vair·ee·uh·bull','a thing in an experiment that can change',['veritable','viable']],
+correlation:['cor·re·la·tion','kor·uh·lay·shun','a link where two things change together',['coronation','correction']],
+significant:['sig·nif·i·cant','sig·nif·ih·kunt','big enough to matter; in research, unlikely to be chance',['signify','magnificent']],
+interpretation:['in·ter·pre·ta·tion','in·tur·prih·tay·shun','your explanation of what something means',['interrogation','integration']],
+introspection:['in·tro·spec·tion','in·truh·spek·shun','looking inward at your own thoughts and feelings',['introduction','inspection']],
+deception:['de·cep·tion','dee·sep·shun','tricking someone into believing something false',['reception','decision']],
+empathy:['em·pa·thy','em·puh·thee','feeling what another person feels',['apathy','emptily']],
+consent:['con·sent','kun·sent','permission given freely',['constant','content']],
+ethical:['eth·i·cal','eth·ih·kul','right and fair by moral rules',['ethnic','ethereal']],
+conclusion:['con·clu·sion','kun·kloo·zhun','the ending, or the decision you reach',['confusion','collusion']],
+argument:['ar·gu·ment','ar·gyoo·ment','a reasoned case for a point of view',['augment','armament']],
+retrospect:['ret·ro·spect','ret·roh·spekt','looking back on the past',['respect','retrofit']]
+};
+const M={psycho:'mind',logy:'study of',ob:'toward',serv:'watch',ation:'act of',hypo:'under',thesis:'idea set down',sub:'under',ject:'throw',per:'through',cept:'take',ion:'act of',con:'with, fully',sci:'know',ous:'full of',re:'back, again',act:'do',un:'not',comfort:'ease',able:'can be',pre:'before',dict:'say',co:'together',oper:'work',ate:'to do',contra:'against',cogn:'know',itive:'about',ize:'to make',neuro:'nerve',bio:'life',intro:'inside',spect:'look',retro:'backward',em:'in',path:'feeling',y:'state of',de:'away from',tele:'far',phobia:'fear',trans:'across',mit:'send',inter:'between',ment:'result',port:'carry',struct:'build',graph:'write',micro:'small',auto:'self',anti:'against'};
+const CASES=[
+{t:'The Letter',words:['institute','research','psychology','experiment','subject','observation','behavior','hypothesis'],
+story:"The letter came with no return address. Inside was a key and one typed line: Come to the Blue Ridge Institute and ask for Room 47. You drive up the mountain in the rain. The building looks dead, but a light is on upstairs. A sign on the door says the institute did research in psychology for thirty years, then shut down in 1979. Nobody says why. Room 47 is full of files, and every file is about one experiment. Each subject was watched through a one-way mirror, and every observation was written down by hand. The notes track behavior: who talked, who waited, who left. On the top file, someone has written a hypothesis in red pen: People will do almost anything if they think someone is in charge. The rest of the page has been cut out.",
+real:"One-way mirrors became a standard lab tool so researchers could watch behavior without changing it. Writing down what you observe before you decide what it means is still rule number one.",
+forge:[['psychology',['psycho','logy'],'the study of the mind'],['observation',['ob','serv','ation'],'the act of watching something closely'],['hypothesis',['hypo','thesis'],'an idea set down under a test'],['subject',['sub','ject'],'a person "thrown under" a study']],
+prompt:"You just walked into Room 47. Write what you see, hear and smell, like a field researcher taking notes. Aim for at least three sentences.",
+starters:['When I opened the door, I saw','The room smelled like','One thing that seemed strange was']},
+{t:'The Waiting Room',words:['participant','perception','conscious','environment','situation','reaction','uncomfortable','conformity'],
+story:"The files say each participant was told to sit in a waiting room until the experiment began. It never began. That was the experiment. The researchers wanted to study perception: how long does a person wait before they notice that something is wrong? Most people were not conscious of the clock. The environment was set up to feel normal, with magazines, a plant and a ticking radiator. But the situation had a trick. The other people in the room were actors. When smoke came in under the door, the actors did nothing. The real subject's first reaction was to look at the others. It was uncomfortable, but most of them stayed in their seats. Dr. Ilse Varga wrote one word on the report: conformity. Then you hear it. Down the hall, a radiator starts ticking.",
+real:"In 1968, Bibb Latané and John Darley piped smoke into a room while people filled out forms. Alone, about 3 in 4 people reported it. Sitting with two calm actors, only about 1 in 10 did.",
+forge:[['perception',['per','cept','ion'],'taking the world in through your senses'],['conscious',['con','sci','ous'],'fully knowing, awake to it'],['reaction',['re','act','ion'],'acting back in response'],['uncomfortable',['un','comfort','able'],'not able to be at ease']],
+prompt:"Would you have stayed in the smoky room? Write about why people go along with the group, and what you think you would have done.",
+starters:['I think most people stayed because','If I were in that room, I would','One reason this happens is']},
+{t:'The Prisoners',words:['dilemma','cooperate','strategy','betray','prediction','rational','consequence','motivation'],
+story:"File three is a game. Two subjects sit in separate rooms. Each one can stay silent or blame the other. If both stay silent, both get a small punishment. If one blames and the other stays silent, the blamer goes free and the silent one gets the worst punishment. If both blame, both get a big punishment. This is a dilemma. Playing alone, the safest strategy is to betray, but if both cooperate, they both do better. Dr. Varga kept a prediction chart. She guessed that a rational player would always betray. She was wrong. When the same two players met again and again, many learned to cooperate. Their motivation changed once there was a consequence tomorrow for what they did today. Clipped to the chart is a photo of the two rooms. In one of them sits a person who looks a lot like you.",
+real:"This is the Prisoner's Dilemma, first worked out at the RAND Corporation in 1950. In the 1980s, Robert Axelrod ran computer tournaments of the repeated game. The winner was a simple strategy called Tit for Tat: cooperate first, then copy whatever your partner did last.",
+forge:[['prediction',['pre','dict','ion'],'saying it before it happens'],['cooperate',['co','oper','ate'],'to work together'],['contradict',['contra','dict'],'to say the opposite']],
+prompt:"Make an argument. In a game you play again and again with the same person, is it smarter to cooperate or betray? Give a claim, a reason, and an example.",
+starters:['My claim is that','The main reason is','For example,']},
+{t:'Missing Data',words:['memory','cognitive','evidence','analysis','variable','correlation','significant','interpretation'],
+story:"Pages are missing from every file, so you look for evidence. You find a box of tapes labeled MEMORY. On the first tape, Dr. Varga shows people a film of two cars crashing, then asks: How fast were the cars going when they smashed into each other? A second group hears hit instead of smashed. One word is the only variable. The smashed group remembers the cars going faster, and some even remember broken glass that was never there. Her analysis found a strong correlation between the words she used and what people remembered. The result was significant. Memory is not a recording. It is rebuilt each time you use it, and cognitive tricks can change it. You play the last tape. A voice that sounds like yours says: I was never here. Your interpretation of that line keeps changing.",
+real:"In 1974, Elizabeth Loftus and John Palmer showed people a film of a car crash. Asking with the word smashed instead of hit raised people's speed guesses, and a week later more of them falsely remembered seeing broken glass.",
+forge:[['cognitive',['cogn','itive'],'about knowing and thinking'],['recognize',['re','cogn','ize'],'to know again'],['neurology',['neuro','logy'],'the study of nerves'],['biology',['bio','logy'],'the study of life']],
+prompt:"The tapes prove memory can be changed. Use evidence from the file to explain how one word changed what people remembered. Then connect it to something in your own life.",
+starters:['The evidence shows that','This matters because','In my own life,']},
+{t:'Subject Zero',words:['introspection','deception','empathy','consent','ethical','conclusion','argument','retrospect'],
+story:"The last file has your name on it. The label says Subject Zero. Room 47 was never about the old files. You were the experiment. The letter, the key and the missing page were all set up to see if you would keep reading. Was it deception? Yes. And here is the hard part. Real studies like this one led to ethical rules: no one can be studied without their consent, and people must be told the truth afterward. That is why places like the institute had to change. At the bottom of your file is a note in red pen: Time for introspection. In retrospect, what made you keep going? Write your conclusion and make your argument. The empathy you felt for the people in these files is the reason those rules exist.",
+real:"Studies that fooled people, like Stanley Milgram's obedience experiments in the 1960s, led to the 1979 Belmont Report. Today, research on people in the U.S. needs informed consent and review by an ethics board.",
+forge:[['introspection',['intro','spect','ion'],'looking inside yourself'],['retrospect',['retro','spect'],'looking backward'],['empathy',['em','path','y'],'feeling your way into someone else'],['deception',['de','cept','ion'],'taking someone away from the truth']],
+prompt:"Write your conclusion. Was it ethical for the institute to run experiments like these? Make an argument with at least one reason and one example from the files.",
+starters:['In retrospect,','I believe it was','In conclusion,']}
+];
+const LABS=['brief','slice','match','forge','spell','notes'];
+const LAB={brief:['Read the file','Listen and follow along. Tap any word to hear it.'],slice:['Slice','Cut long words into beats before you hear them.'],match:['Decode','Read the word, then find the voice that says it.'],forge:['Forge','Build words from meaning parts.'],spell:['Rebuild','Restore the redacted words, chunk by chunk.'],notes:['Field notes','Write your report. Listen back to catch mistakes.']};
+const RANKS=[[0,'Intern'],[40,'Research Assistant'],[120,'Lab Tech'],[250,'Grad Student'],[450,'Investigator'],[700,'Principal Investigator']];
+const PAY={1:[1,0],2:[2,1],3:[3,3]};
+const DAY=864e5,INT=[0,6e5,DAY,3*DAY,7*DAY,16*DAY];
+const BANK=new Set([...Object.keys(W),...CASES.flatMap(c=>c.forge.map(f=>f[0]))]);
+const SPK='<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>';
+
+/* ---------- state ---------- */
+const KEY='subject-zero-v1';
+let S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!S||!S.cases)S={cr:0,cases:{},words:{},bets:{1:[0,0],2:[0,0],3:[0,0]},set:{size:1,rate:.9,voice:'',colors:1},drafts:{}};
+CASES.forEach((c,i)=>{S.cases[i+1]=S.cases[i+1]||{}});
+S.drafts=S.drafts||{};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s),main=$('#main');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const syl=w=>W[w]?W[w][0].split('·'):[w];
+const sylHtml=w=>syl(w).map((s,i)=>`<span class="syl" data-i="${i}">${esc(s)}</span>`).join('');
+const rank=()=>{let r=RANKS[0];for(const x of RANKS)if(S.cr>=x[0])r=x;return r};
+const caseDone=id=>LABS.every(k=>S.cases[id][k]);
+const unlocked=id=>id===1||caseDone(id-1);
+function applySet(){document.documentElement.style.setProperty('--rs',S.set.size);document.body.classList.toggle('colors',!!S.set.colors)}
+function renderTop(){const r=rank(),nx=RANKS.find(x=>x[0]>S.cr);$('#stat').innerHTML=`<b>${S.cr}</b> credibility<br>${r[1]}${nx?` · ${nx[0]-S.cr} to ${nx[1]}`:''}`}
+let tt;function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>e.classList.remove('on'),1600)}
+function addCR(n){const before=rank()[1];S.cr=Math.max(0,S.cr+n);save();renderTop();const after=rank()[1];if(after!==before&&n>0)setTimeout(()=>toast('Promoted: '+after),900)}
+function award(ok,stake){const d=ok?PAY[stake][0]:-PAY[stake][1];S.bets[stake][0]++;if(ok)S.bets[stake][1]++;addCR(d);toast((d>=0?'+':'')+d+' credibility');return d}
+function grade(w,ok){const s=S.words[w]||{box:0,due:0,n:0,ok:0};s.n++;if(ok){s.ok++;s.box=Math.min(5,Math.max(2,s.box+1))}else s.box=1;s.due=Date.now()+INT[s.box];S.words[w]=s;save()}
+function lev(a,b){const d=Array.from({length:a.length+1},(_,i)=>[i]);for(let j=1;j<=b.length;j++)d[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[a.length][b.length]}
+function lcsMask(a,b){const m=a.length,n=b.length,t=Array.from({length:m+1},()=>Array(n+1).fill(0));for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--)t[i][j]=a[i]===b[j]?t[i+1][j+1]+1:Math.max(t[i+1][j],t[i][j+1]);const k=Array(n).fill(false);let i=0,j=0;while(i<m&&j<n){if(a[i]===b[j]){k[j]=true;i++;j++}else if(t[i+1][j]>=t[i][j+1])i++;else j++}return k}
+
+/* ---------- speech ---------- */
+const TTS='speechSynthesis' in window;let SEQ=0,voicesCache=[];
+function loadVoices(){if(TTS)voicesCache=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang))}
+if(TTS){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}
+function voice(){if(!voicesCache.length)return null;return voicesCache.find(v=>v.name===S.set.voice)||voicesCache.find(v=>/natural|neural|google us|samantha|aria|jenny/i.test(v.name)&&/en-US/i.test(v.lang))||voicesCache.find(v=>/en-US/i.test(v.lang))||voicesCache[0]}
+function say(t,rate,onB){return new Promise(res=>{if(!TTS){res();return}const u=new SpeechSynthesisUtterance(t);u.rate=rate||S.set.rate;u.lang='en-US';const v=voice();if(v)u.voice=v;let done=false;const to=setTimeout(fin,2500+t.length*110/u.rate);function fin(){if(done)return;done=true;clearTimeout(to);res()}u.onend=fin;u.onerror=fin;if(onB)u.onboundary=onB;speechSynthesis.speak(u)})}
+function hush(){SEQ++;if(TTS)speechSynthesis.cancel()}
+function sayNow(t,r){hush();return say(t,r)}
+async function soundOut(w,box){hush();const id=SEQ,parts=W[w]?W[w][1].split('·'):[w],els=box?[...box.querySelectorAll('.syl')]:[];for(let i=0;i<parts.length;i++){if(id!==SEQ)return;els.forEach(e=>e.classList.toggle('on',+e.dataset.i===i));await say(parts[i],.75);await sleep(160)}if(id!==SEQ)return;els.forEach(e=>e.classList.add('on'));await say(w);els.forEach(e=>e.classList.remove('on'))}
+
+/* ---------- sheet ---------- */
+function openSheet(html){$('#sheetIn').innerHTML=html;$('#back').style.display='block';$('#sheet').classList.add('open')}
+function closeSheet(){$('#sheet').classList.remove('open');$('#back').style.display='none'}
+$('#back').onclick=closeSheet;
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+function wordSheet(w){const d=W[w];openSheet(`<div class="big" id="sw">${sylHtml(w)}</div><p class="def">${esc(d?d[2]:'')}</p><div class="center"><button class="btn pri" id="s1">${SPK} Hear it</button><button class="btn" id="s2">Sound it out</button><button class="btn ghost" id="s3">Close</button></div>`);$('#s1').onclick=()=>sayNow(w);$('#s2').onclick=()=>soundOut(w,$('#sw'));$('#s3').onclick=closeSheet;sayNow(w)}
+function settings(){openSheet(`<h2>Reading settings</h2>
+<label class="f" for="sz">Text size</label><input type="range" id="sz" min="0.85" max="1.5" step="0.05" value="${S.set.size}">
+<label class="f" for="rt">Voice speed</label><input type="range" id="rt" min="0.6" max="1.3" step="0.05" value="${S.set.rate}">
+<label class="f" for="vc">Voice</label><select id="vc"><option value="">Best available</option>${voicesCache.map(v=>`<option ${v.name===S.set.voice?'selected':''}>${esc(v.name)}</option>`).join('')}</select>
+<label class="f"><input type="checkbox" id="cl" ${S.set.colors?'checked':''} style="width:22px;height:22px;vertical-align:middle"> Color every other syllable</label>
+<p class="small mute">${TTS?'Voices come from this device. Natural or Google voices sound best.':'This browser has no built-in voice, so audio is off. Try Chrome, Edge or Safari.'}</p>
+<div class="center"><button class="btn" id="tv">${SPK} Test voice</button><button class="btn pri" id="ok">Done</button></div>`);
+$('#sz').oninput=e=>{S.set.size=+e.target.value;applySet();save()};$('#rt').oninput=e=>{S.set.rate=+e.target.value;save()};$('#vc').onchange=e=>{S.set.voice=e.target.value;save()};$('#cl').onchange=e=>{S.set.colors=e.target.checked?1:0;applySet();save()};$('#tv').onclick=()=>sayNow('Welcome to Room forty seven. Psychology, hypothesis, interpretation.');$('#ok').onclick=closeSheet}
+
+/* ---------- bet bar ---------- */
+function betBar(){return `<div class="bet" role="group" aria-label="How sure are you?"><span class="small mute">How sure are you?</span>${[1,2,3].map(s=>`<button data-b="${s}" class="${s===BET?'sel':''}">Bet ${s}<span>+${PAY[s][0]} / −${PAY[s][1]}</span></button>`).join('')}</div>`}
+let BET=1;
+function wireBet(root){const bar=root.querySelector('.bet');bar.onclick=e=>{const b=e.target.closest('button');if(!b||bar.getAttribute('aria-disabled')==='true')return;BET=+b.dataset.b;bar.querySelectorAll('button').forEach(x=>x.classList.toggle('sel',x===b))}}
+const lockBet=root=>root.querySelector('.bet').setAttribute('aria-disabled','true');
+
+/* ---------- navigation ---------- */
+function go(fn,...a){hush();closeSheet();fn(...a);window.scrollTo(0,0);renderTop()}
+$('#homeBtn').onclick=()=>go(home);$('#setBtn').onclick=settings;
+
+function heroSvg(){return `<svg viewBox="0 0 800 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs>
+<linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#17383a"/><stop offset="1" stop-color="#0c1b1a"/></linearGradient>
+<linearGradient id="door" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#244544"/><stop offset="1" stop-color="#13292a"/></linearGradient>
+<linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e5f0ea"/><stop offset="1" stop-color="#9cc3b8"/></linearGradient>
+<linearGradient id="spill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe0a3" stop-opacity=".55"/><stop offset="1" stop-color="#ffe0a3" stop-opacity="0"/></linearGradient>
+<linearGradient id="shade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0f1f1e" stop-opacity=".9"/><stop offset=".55" stop-color="#0f1f1e" stop-opacity=".1"/><stop offset="1" stop-color="#0f1f1e" stop-opacity="0"/></linearGradient></defs>
+<rect width="800" height="360" fill="url(#wall)"/>
+<polygon points="555,0 595,0 720,292 430,292" fill="#fff" opacity=".04"/>
+<rect y="292" width="800" height="68" fill="#091413"/>
+<rect x="468" y="38" width="204" height="256" fill="#0a1615"/>
+<rect x="480" y="50" width="180" height="242" fill="url(#door)"/>
+<rect x="480" y="50" width="6" height="242" fill="#3a5d5b" opacity=".6"/>
+<rect x="510" y="78" width="120" height="84" rx="4" fill="url(#glass)" opacity=".9"/>
+<text x="570" y="134" text-anchor="middle" font-family="Archivo,sans-serif" font-weight="800" font-size="42" fill="#1b2422">47</text>
+<circle cx="640" cy="182" r="7" fill="#c9d6d2"/><circle cx="638" cy="180" r="2.5" fill="#fff"/>
+<rect x="480" y="288" width="180" height="4" fill="#ffe3a1"/>
+<polygon points="480,292 660,292 740,360 400,360" fill="url(#spill)"/>
+<g fill="#1c3a38" stroke="#2f5250" stroke-width="2">${Array.from({length:7},(_,i)=>`<rect x="${150+i*20}" y="200" width="14" height="84" rx="6"/>`).join('')}</g>
+<rect x="146" y="196" width="146" height="8" rx="4" fill="#2f5250"/>
+<polygon points="300,322 400,314 414,338 312,346" fill="#e9e6dc"/><polygon points="300,322 330,320 332,326 302,328" fill="#e9e6dc"/>
+<rect x="330" y="324" width="44" height="7" fill="#ff6b57" transform="rotate(-5 352 327)"/>
+<rect x="694" y="112" width="62" height="30" rx="3" fill="#e9e6dc" opacity=".85"/><rect x="704" y="122" width="42" height="4" fill="#1b2422"/><rect x="704" y="130" width="28" height="4" fill="#1b2422"/>
+<rect width="800" height="360" fill="url(#shade)"/></svg>`}
+
+/* ---------- home ---------- */
+function home(){
+  const next=CASES.findIndex((c,i)=>unlocked(i+1)&&!caseDone(i+1))+1;
+  const due=dueWords();
+  const mastered=Object.values(S.words).filter(s=>s.box>=4).length;
+  main.innerHTML=`<section class="hero">${heroSvg()}<div class="cap"><h1>Subject Zero</h1><p>A psychology institute shut down in 1979. Its files are scrambled. Forty words stand between you and what really happened in Room 47.</p>${next?`<button class="btn pri" id="cont">${S.cases[next].brief?'Continue':'Open'} case ${next}</button>`:`<button class="btn pri" id="cont">All cases closed</button>`}</div></section>
+  <div class="wrap"><h2>Case files</h2><div class="files">${CASES.map((c,i)=>{const id=i+1,u=unlocked(id),n=LABS.filter(k=>S.cases[id][k]).length;return `<button class="file ${u?'':'locked'}" data-c="${id}" ${u?'':'aria-disabled="true"'}>${caseDone(id)?'<span class="stamp">Closed</span>':u?'':'<span class="stamp">Sealed</span>'}<div class="no">Case ${id}</div><h3>${u?esc(c.t):'Sealed'}</h3><div class="small">${u?`${n} of 6 labs done`:`Close case ${id-1} to open`}</div><div class="bar"><i style="width:${n/6*100}%"></i></div></button>`}).join('')}</div>
+  <div class="tools"><div class="card"><h3>Memory drills</h3><p class="small mute">Words come back right before you'd forget them. ${due.length?`${due.length} due now.`:'Nothing due right now.'}</p><button class="btn ${due.length?'pri':''}" id="rev" ${due.length?'':'disabled'}>Run drills</button></div>
+  <div class="card"><h3>Lab report</h3><p class="small mute">${mastered} words locked in. See how well your bets match what you know.</p><button class="btn" id="rep">Open report</button></div></div>
+  <p class="foot">The story is fiction. The "Real psych" notes in each case describe real studies.</p></div>`;
+  main.querySelectorAll('.file').forEach(b=>b.onclick=()=>{const id=+b.dataset.c;if(unlocked(id))go(caseView,id)});
+  $('#cont').onclick=()=>next&&go(caseView,next);
+  $('#rev').onclick=()=>go(review);$('#rep').onclick=()=>go(report);
+}
+function dueWords(){const now=Date.now();return Object.entries(S.words).filter(([w,s])=>s.n>0&&s.due<=now).sort((a,b)=>a[1].due-b[1].due).map(x=>x[0])}
+
+/* ---------- case ---------- */
+function caseView(id){
+  const c=CASES[id-1],st=S.cases[id];
+  main.innerHTML=`<div class="wrap"><button class="btn ghost" id="bk">All files</button>
+  <p class="mute" style="margin:18px 0 4px">Case ${id}</p><h1>${esc(c.t)}</h1>
+  ${st.brief?`<div class="note"><b>Real psych.</b> ${esc(c.real)}</div>`:''}
+  <div class="steps">${LABS.map((k,i)=>`<button class="step ${st[k]?'done':''}" data-k="${k}"><span class="n">${st[k]?'✓':i+1}</span><span><b>${LAB[k][0]}</b><span class="small mute">${LAB[k][1]}</span></span><span class="go mute small">${st[k]?'Replay':'Start'}</span></button>`).join('')}</div>
+  <h3>Case words</h3><p class="small mute">Tap to hear. Green ones are locked into memory.</p>
+  <div class="chips">${c.words.map(w=>`<button class="chip ${(S.words[w]||{}).box>=4?'m':''}" data-w="${w}">${esc(w)}</button>`).join('')}</div></div>`;
+  $('#bk').onclick=()=>go(home);
+  main.querySelectorAll('.step').forEach(b=>b.onclick=()=>go(LABFN[b.dataset.k],id));
+  main.querySelectorAll('.chip').forEach(b=>b.onclick=()=>wordSheet(b.dataset.w));
+}
+function finishLab(id,kind,line){
+  const st=S.cases[id],first=!st[kind];st[kind]=1;save();if(first)addCR(5);
+  const closed=caseDone(id)&&!st.closed;if(closed){st.closed=1;save();addCR(20)}
+  const i=LABS.indexOf(kind),nk=LABS.slice(i+1).find(k=>!st[k]);
+  main.innerHTML=`<div class="wrap"><div class="stage" style="text-align:center">${closed?`<span class="stamp" style="position:static;display:inline-block;font-size:22px">Case closed</span>`:''}
+  <h2 style="margin:14px 0 8px">${closed?esc(CASES[id-1].t)+' is solved':LAB[kind][0]+' complete'}</h2><p class="mute">${line||''}${first?' +5 credibility for a new lab.':''}${closed?' +20 for closing the case.':''}</p>
+  ${closed&&id<CASES.length?`<p>Case ${id+1}, <b>${esc(CASES[id].t)}</b>, is now open.</p>`:''}${closed&&id===CASES.length?'<p>Every file in Room 47 is closed. Keep running memory drills to lock the words in.</p>':''}
+  <div class="center">${nk?`<button class="btn pri" id="nx">Next: ${LAB[nk][0]}</button>`:''}${closed&&id<CASES.length?`<button class="btn pri" id="nc">Open case ${id+1}</button>`:''}<button class="btn" id="bc">Back to case</button></div></div></div>`;
+  if(nk)$('#nx').onclick=()=>go(LABFN[nk],id);if($('#nc'))$('#nc').onclick=()=>go(caseView,id+1);$('#bc').onclick=()=>go(caseView,id);
+}
+const head=(id,kind,i,n)=>`<div class="wrap"><button class="btn ghost" id="bk">Case ${id}</button><div class="stage"><div class="prog"><span>${LAB[kind][0]}</span><span>${n?`${i+1} of ${n}`:''}</span></div>`;
+const wireBack=id=>{$('#bk').onclick=()=>go(caseView,id)};
+
+/* ---------- reader (story and read-back) ---------- */
+function readable(text,targets){const sents=text.match(/[^.!?]+[.!?]+["'”]?\s*|[^.!?]+$/g)||[text];return {sents,html:sents.map((s,si)=>{let h='',m;const re=/[A-Za-z][A-Za-z'’]*|[^A-Za-z]+/g;while((m=re.exec(s))){const t=m[0];if(/^[A-Za-z]/.test(t)){const k=t.toLowerCase();h+=`<span class="w${targets&&targets.includes(k)?' tw':''}" data-s="${si}" data-i="${m.index}" data-k="${esc(k)}" tabindex="0">${esc(t)}</span>`}else h+=esc(t)}return `<span class="sent" data-s="${si}">${h}</span>`}).join('')}}
+function reader(root,sents,onState){let idx=0,playing=false;const mark=si=>{root.querySelectorAll('.sent').forEach(e=>e.classList.toggle('on',+e.dataset.s===si));root.querySelectorAll('.w.on').forEach(e=>e.classList.remove('on'))};
+  async function play(){hush();const id=SEQ;playing=true;onState(true);for(;idx<sents.length;idx++){if(id!==SEQ)return;mark(idx);const ws=[...root.querySelectorAll(`.w[data-s="${idx}"]`)];await say(sents[idx],null,e=>{if(e.name&&e.name!=='word')return;let hit=null;for(const w of ws)if(+w.dataset.i<=e.charIndex)hit=w;ws.forEach(w=>w.classList.toggle('on',w===hit))})}if(id!==SEQ)return;idx=0;mark(-1);playing=false;onState(false)}
+  function stop(){hush();playing=false;onState(false);root.querySelectorAll('.w.on').forEach(e=>e.classList.remove('on'))}
+  root.addEventListener('click',e=>{const w=e.target.closest('.w');if(!w)return;if(playing)stop();idx=+w.dataset.s;mark(idx);w.classList.add('on');if(w.classList.contains('tw'))wordSheet(w.dataset.k);else sayNow(w.textContent)});
+  root.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList.contains('w'))e.target.click()});
+  return {play,stop,restart(){idx=0;play()},get playing(){return playing}}}
+
+/* ---------- 1. briefing ---------- */
+function brief(id){const c=CASES[id-1],r=readable(c.story,c.words);
+  main.innerHTML=head(id,'brief')+`<h2 style="margin-bottom:6px">${esc(c.t)}</h2><p class="small mute">Underlined words are case words. Tap one to break it into beats.</p><div class="story" id="st">${r.html}</div>
+  <div class="controls"><button class="btn pri" id="pl">${SPK} Read to me</button><button class="btn" id="rs">From the top</button><button class="btn" id="dn">I've read it</button></div></div></div>`;
+  wireBack(id);const rd=reader($('#st'),r.sents,p=>{$('#pl').innerHTML=p?'Pause':SPK+' Read to me'});
+  $('#pl').onclick=()=>rd.playing?rd.stop():rd.play();$('#rs').onclick=()=>rd.restart();$('#dn').onclick=()=>{hush();finishLab(id,'brief','The real study behind this file is now on the case page.')}}
+
+/* ---------- 2. slice ---------- */
+function slice(id){const c=CASES[id-1],words=shuffle(c.words);let i=0,pts=0;
+  function item(){const w=words[i],L=w.split(''),cuts=new Set();let tries=0,doneItem=false;
+    main.innerHTML=head(id,'slice',i,words.length)+`<p class="def">Read it in your head. Tap a letter to cut after it, so each piece is one beat.</p><div class="slicer" id="sl" style="--n:${L.length}">${L.map((ch,j)=>`<button class="L" data-j="${j}" aria-label="cut after ${ch}">${ch}</button>`).join('')}</div><div class="fb" id="fb"></div><div class="center" id="ct"><button class="btn" id="hint">Hint</button><button class="btn pri" id="chk">Check</button></div></div></div>`;
+    wireBack(id);
+    $('#sl').onclick=e=>{const b=e.target.closest('.L');if(!b||doneItem)return;const j=+b.dataset.j;if(j===L.length-1)return;cuts.has(j)?cuts.delete(j):cuts.add(j);paint()};
+    function paint(){let p=0;$('#sl').querySelectorAll('.L').forEach((b,j)=>{b.classList.toggle('cut',cuts.has(j));b.classList.toggle('c1',S.set.colors&&p%2===1);if(cuts.has(j))p++})}
+    $('#hint').onclick=()=>{$('#fb').className='fb';$('#fb').textContent=`This word has ${syl(w).length} beats. Every beat needs a vowel: a, e, i, o, u or y.`};
+    $('#chk').onclick=()=>{const chunks=[];let cur='';L.forEach((ch,j)=>{cur+=ch;if(cuts.has(j)){chunks.push(cur);cur=''}});chunks.push(cur);
+      const target=syl(w),ok=chunks.length===target.length&&chunks.every(x=>/[aeiouy]/.test(x)),exact=chunks.join('·')===target.join('·');
+      if(ok||tries>=1){doneItem=true;const g=ok?(exact?3:2):0;pts+=g;if(g)addCR(g);
+        $('#sl').outerHTML=`<div class="big" id="sb">${sylHtml(w)}</div>`;
+        $('#fb').className='fb '+(ok?'ok':'no');$('#fb').textContent=ok?(exact?`Perfect split. +${g}`:`Good chunks. The dictionary splits it like this. +${g}`):'Here is how it breaks. Listen to each beat.';
+        $('#ct').innerHTML=`<button class="btn" id="so">${SPK} Sound it out</button><button class="btn pri" id="nx">${i<words.length-1?'Next word':'Finish'}</button>`;
+        $('#so').onclick=()=>soundOut(w,$('#sb'));$('#nx').onclick=()=>{i++;i<words.length?item():finishLab(id,'slice',`You earned ${pts} for clean slices.`)};soundOut(w,$('#sb'))}
+      else{tries++;$('#fb').className='fb no';$('#fb').textContent=`Not quite. It has ${target.length} beats, and every beat needs a vowel. Try once more.`}}}
+  item()}
+
+/* ---------- 3. decode match ---------- */
+function match(id,list,onEnd){const words=list||shuffle(CASES[id-1].words);let i=0,right=0;
+  function item(){const w=words[i],opts=shuffle([w,...W[w][3]]);let answered=false;
+    const top=list?`<div class="wrap"><button class="btn ghost" id="bk">Home</button><div class="stage"><div class="prog"><span>Memory drill: decode</span><span>${i+1} of ${words.length}</span></div>`:head(id,'match',i,words.length);
+    main.innerHTML=top+betBar()+`<div class="big" id="bw">${esc(w)}</div><div class="center" style="margin-top:0"><button class="btn ghost" id="sh">Show beats</button></div><p class="def">Read the word. Play each voice, then pick the one that says it.</p><div class="opts">${opts.map((o,j)=>`<div class="opt" data-o="${esc(o)}"><button class="btn" data-p="${j}">${SPK} Voice ${'ABC'[j]}</button><span class="reveal"></span><button class="btn pick" data-k="${j}">This one</button></div>`).join('')}</div><div class="fb" id="fb"></div><div class="center" id="ct"></div></div></div>`;
+    if(list)$('#bk').onclick=()=>go(home);else wireBack(id);wireBet(main);
+    $('#sh').onclick=()=>{$('#bw').innerHTML=sylHtml(w);$('#sh').remove()};
+    main.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>sayNow(opts[+b.dataset.p]));
+    main.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{if(answered)return;answered=true;lockBet(main);const pick=opts[+b.dataset.k],ok=pick===w;if(ok)right++;award(ok,BET);grade(w,ok);
+      main.querySelectorAll('.opt').forEach(o=>{const v=o.dataset.o;o.querySelector('.reveal').textContent=v;if(v===w)o.classList.add('right');else if(v===pick)o.classList.add('wrong')});
+      $('#bw').innerHTML=sylHtml(w);$('#fb').className='fb '+(ok?'ok':'no');$('#fb').textContent=(ok?'Decoded. ':'That voice said '+pick+'. ')+W[w][2]+'.';
+      $('#ct').innerHTML=`<button class="btn" id="so">Sound it out</button><button class="btn pri" id="nx">${i<words.length-1?'Next':'Finish'}</button>`;$('#so').onclick=()=>soundOut(w,$('#bw'));$('#nx').onclick=()=>{i++;i<words.length?item():(onEnd?onEnd(right):finishLab(id,'match',`${right} of ${words.length} decoded.`))};if(!ok)soundOut(w,$('#bw'))})}
+  item()}
+
+/* ---------- 4. forge ---------- */
+function forge(id){const items=shuffle(CASES[id-1].forge);let i=0,right=0;
+  function item(){const [w,parts,clue]=items[i];const others=shuffle(Object.keys(M).filter(k=>!parts.includes(k))).slice(0,Math.max(3,7-parts.length));const pool=shuffle([...parts,...others]);let built=[],tries=0,done=false;
+    main.innerHTML=head(id,'forge',i,items.length)+betBar()+`<p class="mute small" style="text-align:center;margin:14px 0 0">Build a word that means</p><h2 style="text-align:center;margin:4px 0 0">${esc(clue)}</h2><div class="slot" id="slot" aria-label="your word"></div><div class="pool" id="pool">${pool.map((p,j)=>`<button class="tile" data-j="${j}"><b>${esc(p)}</b><span>${esc(M[p])}</span></button>`).join('')}</div><div class="fb" id="fb"></div><div class="center" id="ct"><button class="btn" id="clr">Clear</button><button class="btn pri" id="chk">Forge it</button></div></div></div>`;
+    wireBack(id);wireBet(main);
+    function paint(){$('#slot').innerHTML=built.length?built.map((j,k)=>`<button class="tile" data-k="${k}"><b>${esc(pool[j])}</b><span>${esc(M[pool[j]])}</span></button>`).join(''):'<span class="mute small" style="align-self:center">Tap parts below. Tap a part here to take it back.</span>';$('#pool').querySelectorAll('.tile').forEach(t=>t.classList.toggle('used',built.includes(+t.dataset.j)))}
+    paint();
+    $('#pool').onclick=e=>{const t=e.target.closest('.tile');if(!t||done)return;const j=+t.dataset.j;sayNow(pool[j]);built.push(j);paint()};
+    $('#slot').onclick=e=>{const t=e.target.closest('.tile');if(!t||done)return;built.splice(+t.dataset.k,1);paint()};
+    $('#clr').onclick=()=>{if(!done){built=[];paint()}};
+    $('#chk').onclick=()=>{if(done||!built.length)return;const got=built.map(j=>pool[j]);const ok=got.join('|')===parts.join('|');
+      if(tries===0){lockBet(main);award(ok,BET)}
+      if(ok||tries>=1){done=true;if(ok&&tries===0)right++;
+        $('#slot').innerHTML=parts.map(p=>`<span class="tile ok"><b>${esc(p)}</b><span>${esc(M[p])}</span></span>`).join('')+`<div class="big" id="bw" style="width:100%;margin:8px 0 0">${W[w]?sylHtml(w):esc(w)}</div>`;
+        $('#fb').className='fb '+(ok?'ok':'no');$('#fb').textContent=ok?`Forged: ${w}.`:`It's ${parts.join(' + ')} = ${w}.`;
+        $('#ct').innerHTML=`<button class="btn" id="hr">${SPK} Hear it</button><button class="btn pri" id="nx">${i<items.length-1?'Next':'Finish'}</button>`;$('#hr').onclick=()=>W[w]?soundOut(w,$('#bw')):sayNow(w);$('#nx').onclick=()=>{i++;i<items.length?item():finishLab(id,'forge',`${right} of ${items.length} forged on the first try. Those parts unlock hundreds of other words.`)};sayNow(w)}
+      else{tries++;$('#fb').className='fb no';$('#fb').textContent=`Not yet. It starts with "${parts[0]}". One more try.`;built=[];paint()}}}
+  item()}
+
+/* ---------- 5. rebuild (spelling) ---------- */
+const RULES=[[/tion$/,'sion'],[/tion$/,'shun'],[/sion$/,'tion'],[/sion$/,'shun'],[/scious$/,'shus'],[/ph/,'f'],[/ch/,'k'],[/^ps/,'s'],[/c(?=[eiy])/,'s'],[/c(?![eiyh])/,'k'],[/k/,'c'],[/y$/,'ee'],[/y$/,'ie'],[/y/,'i'],[/i(?![aeou])/,'e'],[/e/,'i'],[/a/,'u'],[/o/,'u'],[/u/,'oo'],[/er/,'ur'],[/er/,'ir'],[/or/,'er'],[/ar/,'er'],[/ence/,'ance'],[/ance/,'ence'],[/ent$/,'ant'],[/ant$/,'ent'],[/ble$/,'bul'],[/able/,'ible'],[/ea/,'ee'],[/qu/,'kw'],[/x/,'cks'],[/th/,'f'],[/mm/,'m'],[/m$/,'mm'],[/l$/,'ll'],[/ject/,'jekt'],[/g(?=[eiy])/,'j'],[/ss/,'s'],[/s$/,'ss'],[/ay/,'ai'],[/ai/,'ay']];
+function decoys(ch){const out=new Set();for(const[re,r]of RULES)if(re.test(ch)){const v=ch.replace(re,r);if(v!==ch)out.add(v)}const a=shuffle([...out]);let g=0;while(a.length<2&&g++<20){const v=ch+'eh'[a.length];if(!a.includes(v))a.push(v)}return a.slice(0,2)}
+function typeIt(w,root,onDone){root.innerHTML=betBar()+`<p class="def">Now type the whole word from memory.</p><input class="type" id="ty" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="type the word"><div class="fb" id="tf"></div><div class="center" id="tc"><button class="btn" id="th">${SPK} Hear again</button><button class="btn pri" id="tk">Check</button></div>`;
+  wireBet(root);let tries=0;const inp=root.querySelector('#ty');inp.focus();root.querySelector('#th').onclick=()=>sayNow(w);
+  const check=()=>{const v=inp.value.trim().toLowerCase();if(!v)return;const ok=v===w;
+    if(tries===0){lockBet(root);award(ok,BET);grade(w,ok)}
+    if(ok){root.querySelector('#tf').className='fb ok';root.querySelector('#tf').textContent=tries?'Fixed it.':'Perfect spelling.';end(ok&&tries===0)}
+    else if(tries===0){tries++;const k=lcsMask(v,w);root.querySelector('#tf').className='fb no';root.querySelector('#tf').innerHTML=`Close. Underlined letters are the ones to fix:<div class="big" style="font-size:calc(34px*var(--rs))">${w.split('').map((c,j)=>k[j]?esc(c):`<span class="miss">${esc(c)}</span>`).join('')}</div>Look, cover it in your head, and type it once more.`;inp.value='';inp.focus()}
+    else{root.querySelector('#tf').className='fb no';root.querySelector('#tf').innerHTML=`It's <b>${esc(syl(w).join(' · '))}</b>. It will come back in your memory drills.`;end(false)}};
+  function end(clean){inp.disabled=true;root.querySelector('#tc').innerHTML=`<button class="btn pri" id="tn">Next</button>`;root.querySelector('#tn').onclick=()=>onDone(clean);root.querySelector('#tn').focus()}
+  root.querySelector('#tk').onclick=check;inp.onkeydown=e=>{if(e.key==='Enter')check()}}
+function spell(id){const words=shuffle(CASES[id-1].words).slice(0,6);let i=0,right=0;
+  function item(){const w=words[i],parts=syl(w),sets=parts.map(p=>shuffle([p,...decoys(p)]));let k=0,picked=[];
+    main.innerHTML=head(id,'spell',i,words.length)+`<p class="def">A word was blacked out of the file. Listen, then rebuild it one chunk at a time.</p><p class="def" style="margin-top:8px"><b>Meaning:</b> ${esc(W[w][2])}</p><div class="center"><button class="btn" id="hr">${SPK} Hear the word</button><button class="btn ghost" id="hs">Hear it slowly</button></div><div class="blanks" id="bl">${parts.map((_,j)=>`<span class="blank ${j===0?'cur':''}"></span>`).join('')}</div><div class="choices" id="ch"></div><div class="fb" id="fb"></div><div id="tz"></div></div></div>`;
+    wireBack(id);$('#hr').onclick=()=>sayNow(w);$('#hs').onclick=()=>soundOut(w,null);
+    function choices(){$('#ch').innerHTML=sets[k].map(o=>`<button class="tile" data-o="${esc(o)}"><b>${esc(o)}</b></button>`).join('')}
+    choices();sayNow(w);
+    $('#ch').onclick=e=>{const t=e.target.closest('.tile');if(!t)return;picked.push(t.dataset.o);const bl=$('#bl').children;bl[k].textContent=t.dataset.o;bl[k].classList.remove('cur');k++;if(k<parts.length){bl[k].classList.add('cur');choices()}else{
+      $('#ch').innerHTML='';let all=true;parts.forEach((p,j)=>{const ok=picked[j]===p;if(!ok)all=false;bl[j].classList.add(ok?'ok':'bad');bl[j].textContent=p});
+      if(all)addCR(1);$('#fb').className='fb '+(all?'ok':'no');$('#fb').textContent=all?'Every chunk right. +1':'Red chunks were swapped for the right ones. Study them.';
+      $('#tz').innerHTML=`<div class="center"><button class="btn pri" id="go">Cover it and type</button></div>`;$('#go').onclick=()=>{$('#bl').style.display='none';$('#fb').textContent='';typeIt(w,$('#tz'),clean=>{if(clean)right++;i++;i<words.length?item():finishLab(id,'spell',`${right} of ${words.length} spelled clean on the first try.`)})}}}}
+  item()}
+
+/* ---------- 6. field notes ---------- */
+function notes(id){const c=CASES[id-1];
+  main.innerHTML=head(id,'notes')+`<h2>Field notes</h2><p style="font-size:calc(19px*var(--rs))">${esc(c.prompt)}</p><div class="center" style="justify-content:flex-start"><button class="btn ghost" id="hp">${SPK} Hear the prompt</button></div>
+  <p class="small mute" style="margin-top:14px">Sentence starters (tap to add)</p><div class="chips" id="sts">${c.starters.map(s=>`<button class="chip" data-t="${esc(s)}">${esc(s)}…</button>`).join('')}</div>
+  <p class="small mute" style="margin-top:14px">Case words: tap to hear, then type it yourself</p><div class="chips" id="wb">${c.words.map(w=>`<button class="chip" data-w="${w}">${esc(w)}</button>`).join('')}</div>
+  <p class="small mute" style="margin-top:14px">Tip: your keyboard's microphone button lets you talk instead of type. Then fix it up.</p>
+  <textarea id="tx" aria-label="your field notes" placeholder="Start your notes here..."></textarea>
+  <div class="row small mute" style="justify-content:space-between;margin-top:6px"><span id="wc"></span><button class="btn ghost" id="cp">Copy text</button></div>
+  <div class="readback" id="rb"></div><ul class="issues" id="is"></ul>
+  <div class="center"><button class="btn" id="lb">${SPK} Listen back</button><button class="btn" id="ck">Proofread</button><button class="btn pri" id="fl" disabled>File report</button></div></div></div>`;
+  wireBack(id);const tx=$('#tx');tx.value=S.drafts[id]||'';
+  const count=()=>{const t=tx.value,wds=(t.match(/[A-Za-z']+/g)||[]).length,sn=(t.match(/[^.!?]+[.!?]+/g)||[]).filter(s=>/[A-Za-z]/.test(s)).length;$('#wc').textContent=`${wds} words · ${sn} sentences · file it at 40 words and 3 sentences`;$('#fl').disabled=!(wds>=40&&sn>=3);S.drafts[id]=t;save()};
+  count();tx.oninput=count;
+  $('#hp').onclick=()=>sayNow(c.prompt);
+  $('#sts').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;const t=tx.value;tx.value=t+(t&&!/\s$/.test(t)?' ':'')+b.dataset.t+' ';tx.focus();count()};
+  $('#wb').onclick=e=>{const b=e.target.closest('.chip');if(b)wordSheet(b.dataset.w)};
+  $('#cp').onclick=async()=>{try{await navigator.clipboard.writeText(tx.value);toast('Copied')}catch(e){tx.select();toast('Selected: press copy')}};
+  let rd=null;$('#lb').onclick=()=>{if(rd&&rd.playing){rd.stop();return}const t=tx.value.trim();if(!t){sayNow('Write something first.');return}const r=readable(t);$('#rb').innerHTML=r.html;$('#rb').style.display='block';rd=reader($('#rb'),r.sents,p=>{$('#lb').innerHTML=p?'Stop':SPK+' Listen back'});rd.play()};
+  $('#ck').onclick=()=>{const t=tx.value,out=[];const ss=t.match(/[^.!?]+[.!?]*/g)||[];ss.forEach(s=>{const x=s.trim();if(/^[a-z]/.test(x))out.push(`Start this sentence with a capital: "${x.slice(0,30)}..."`)});
+    if(t.trim()&&!/[.!?]["'”]?$/.test(t.trim()))out.push('End your last sentence with a period, question mark or exclamation point.');
+    if(/(^|\s)i(\s|'|’|$)/.test(t))out.push('Write "I" as a capital letter.');
+    const seen=new Set();(t.match(/[A-Za-z]+/g)||[]).forEach(raw=>{const v=raw.toLowerCase();if(v.length<5||BANK.has(v)||seen.has(v))return;let best=null,bd=9;for(const b of BANK){const d=lev(v,b);if(d<bd){bd=d;best=b}}if(best&&bd<=2&&bd<=Math.floor(best.length/4)+1){seen.add(v);out.push(`Did you mean <button class="chip" data-w="${best}">${esc(best)}</button> instead of "${esc(raw)}"?`)}});
+    const long=ss.find(s=>(s.match(/[A-Za-z']+/g)||[]).length>35);if(long)out.push('One sentence runs over 35 words. Try splitting it in two.');
+    $('#is').innerHTML=out.length?out.map(x=>`<li>${x}</li>`).join(''):'<li class="okay">No problems found in capitals, endings or case words. Listen back once to check that it says what you mean.</li>';
+    $('#is').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>wordSheet(b.dataset.w))};
+  $('#fl').onclick=()=>{hush();addCR(10);finishLab(id,'notes','Report filed. +10 credibility for writing it.')}}
+
+const LABFN={brief,slice,match,forge,spell,notes};
+
+/* ---------- memory drills ---------- */
+function review(){const due=dueWords().slice(0,10);if(!due.length){go(home);return}
+  const decode=due.filter((_,i)=>i%2===0),typed=due.filter((_,i)=>i%2===1);
+  match(0,decode,r1=>{let i=0,r2=0;
+    const nextT=()=>{if(i>=typed.length){done(r1+r2);return}const w=typed[i];
+      main.innerHTML=`<div class="wrap"><button class="btn ghost" id="bk">Home</button><div class="stage"><div class="prog"><span>Memory drill: spell</span><span>${i+1} of ${typed.length}</span></div><p class="def"><b>Meaning:</b> ${esc(W[w][2])}</p><div class="center"><button class="btn" id="hr">${SPK} Hear the word</button></div><div id="tz"></div></div></div>`;
+      $('#bk').onclick=()=>go(home);$('#hr').onclick=()=>sayNow(w);sayNow(w);typeIt(w,$('#tz'),clean=>{if(clean)r2++;i++;nextT()})};
+    nextT()});
+  function done(n){main.innerHTML=`<div class="wrap"><div class="stage" style="text-align:center"><h2>Drills done</h2><p class="mute">${n} of ${due.length} right on the first try. Missed words come back in about ten minutes; right ones wait longer each time.</p><div class="center"><button class="btn pri" id="hm">Back to Room 47</button></div></div></div>`;$('#hm').onclick=()=>go(home)}}
+
+/* ---------- lab report ---------- */
+function report(){const ws=Object.entries(S.words),mastered=ws.filter(([,s])=>s.box>=4),learning=ws.filter(([,s])=>s.box<4);
+  const row=s=>{const[n,ok]=S.bets[s],p=n?ok/n:0,lo=[0,0,.5,.67][s],hi=[0,.5,.67,1.01][s];const verdict=!n?'No bets yet':n<5?'Too few bets to tell':p<lo?'Overconfident: you bet high but missed often':p>=hi&&s<3?'Underconfident: you could bet higher':'Well calibrated';return `<tr><td>Bet ${s}</td><td class="r">${n}</td><td class="r">${n?Math.round(p*100)+'%':'-'}</td><td>${verdict}</td></tr>`};
+  main.innerHTML=`<div class="wrap"><button class="btn ghost" id="bk">Home</button><h1 style="margin-top:16px">Lab report</h1><p class="mute">${esc(rank()[1])} · ${S.cr} credibility · ${mastered.length} of ${Object.keys(W).length} case words locked in</p>
+  <div class="card" style="margin-top:18px"><h3>Your betting calibration</h3><p class="small">Every bet is a decision under uncertainty. The payoffs are built so the smart move depends on how sure you really are: Bet 1 is best below 50% sure, Bet 2 from 50% to 67%, and Bet 3 only above 67%. Good researchers know what they know.</p>
+  <table class="stack"><thead><tr><th>Stake</th><th class="r">Bets</th><th class="r">Right</th><th>Verdict</th></tr></thead><tbody>${[1,2,3].map(row).join('')}</tbody></table></div>
+  <div class="card" style="margin-top:14px"><h3>Words still settling in</h3><div class="chips" style="margin-top:8px">${learning.length?learning.map(([w])=>`<button class="chip" data-w="${w}">${esc(w)}</button>`).join(''):'<span class="mute small">None yet. Words show up here after you meet them in a lab.</span>'}</div>
+  <h3 style="margin-top:18px">Locked in</h3><div class="chips" style="margin-top:8px">${mastered.length?mastered.map(([w])=>`<button class="chip m" data-w="${w}">${esc(w)}</button>`).join(''):'<span class="mute small">A word locks in after it is right in several drills spread over days.</span>'}</div></div>
+  <div class="center" style="justify-content:flex-start;margin-top:22px"><button class="btn ghost" id="rst">Reset all progress</button></div></div>`;
+  $('#bk').onclick=()=>go(home);main.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>wordSheet(b.dataset.w));
+    $('#rst').onclick=()=>{openSheet(`<h2>Reset everything?</h2><p>This wipes credibility, cases and word memory in this browser. It can't be undone.</p><div class="center"><button class="btn" id="no">Keep my progress</button><button class="btn pri" id="yes">Reset</button></div>`);$('#no').onclick=closeSheet;$('#yes').onclick=()=>{try{localStorage.removeItem(KEY)}catch(x){}location.reload()}}}
+
+applySet();renderTop();home();
+}
+</script>
+</body>
+</html>
