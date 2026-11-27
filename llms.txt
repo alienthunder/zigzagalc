@@ -5,7 +5,9 @@
 ## Key pages
 - [Home](https://zigzagalc.org/): what ZigZag is
 - [How It Works](https://zigzagalc.org/how-it-works/): a typical day, pods, classes and field trips
-- [About Us](https://zigzagalc.org/about-us/): values, people and campus
+- [Who We Are](https://zigzagalc.org/about-us/who-we-are/): our community, beliefs, practices and values
+- [Our Campus](https://zigzagalc.org/about-us/campus/): the mini-campus near Bent Creek
+- [Our People](https://zigzagalc.org/about-us/people/): facilitators, mentors and council
 - [Classes](https://zigzagalc.org/classes/): this semester's class schedule
 - [Events](https://zigzagalc.org/events/): open houses and community events
 - [FAQs](https://zigzagalc.org/faqs/): self-directed education, tuition, college, mixed ages, NC homeschool rules
