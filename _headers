@@ -1,0 +1,20 @@
+https://zigzagalc.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.zigzagalc.pages.dev/*
+  X-Robots-Tag: noindex
+
+/zero/*
+  X-Robots-Tag: noindex
+
+/newsletter/*
+  X-Robots-Tag: noindex
+
+/community-comittee/*
+  X-Robots-Tag: noindex
+
+/ongoing-volunteer-opportunities/*
+  X-Robots-Tag: noindex
+
+/introducing-the-zigzag-parent-hub/*
+  X-Robots-Tag: noindex
