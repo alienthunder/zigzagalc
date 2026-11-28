@@ -18,3 +18,9 @@ https://:version.zigzagalc.pages.dev/*
 
 /introducing-the-zigzag-parent-hub/*
   X-Robots-Tag: noindex
+
+/wp-content/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+/wp-includes/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
